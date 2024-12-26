@@ -6,7 +6,7 @@ import numpy as np
 
 # Папка с исходными изображениями логотипов
 input_folder = "Образцы"
-output_folder = "..\\Датасет логотипов авто 28x28 px\\Тестовые"
+output_folder = "..\\Датасет логотипов авто 28x28 px\\Train"
 
 # Очистка папки перед началом генерации, если она не пустая
 if os.path.exists(output_folder):
@@ -24,7 +24,7 @@ else:
     os.makedirs(output_folder)  # Создаем папку, если она не существует
 
 # Параметры генерации
-num_variations = 10         # Количество вариаций для каждого логотипа
+num_variations = 6000       # Количество вариаций для каждого логотипа
 rotation_range = (-30, 30)  # Пределы поворота
 translation_range = (-5, 5) # Смещение
 scaling_range = (0.8, 1.2)  # Масштабирование
@@ -34,7 +34,7 @@ perspective_range = (-7, 7) # Изменение перспективы
 light_augmentation_probability = 0.85  # Вероятность применения лёгкой аугментации
 
 def apply_light_augmentations(image, augmentations_type):
-    """Применение не более двух лёгких аугментаций."""
+    """Применение не более двух лёгких аугментаций"""
     augmentations = []
 
     # Лёгкие аугментации
@@ -62,7 +62,7 @@ def apply_light_augmentations(image, augmentations_type):
     return image
 
 def apply_aggressive_augmentations(image, augmentations_type):
-    """Применение не более двух агрессивных аугментаций."""
+    """Применение не более двух агрессивных аугментаций"""
     augmentations = []
 
     # Агрессивные аугментации
@@ -90,13 +90,13 @@ def apply_aggressive_augmentations(image, augmentations_type):
     return image
 
 def rotate_image(image, augmentations_type):
-    """Поворот изображения на случайный угол."""
+    """Поворот изображения на случайный угол"""
     angle = random.uniform(*rotation_range)
     augmentations_type.append("rotate")
     return image.rotate(angle, resample=Image.BICUBIC, fillcolor=255)
 
 def translate_image(image, augmentations_type):
-    """Смещение изображения."""
+    """Смещение изображения"""
     dx = random.randint(*translation_range)
     dy = random.randint(*translation_range)
     # Проверка, чтобы смещение не выходило за пределы изображения
@@ -108,7 +108,7 @@ def translate_image(image, augmentations_type):
     return translated
 
 def scale_image(image, augmentations_type):
-    """Масштабирование изображения с центрированием."""
+    """Масштабирование изображения с центрированием"""
     scale = random.uniform(*scaling_range)
     new_width = int(image.size[0] * scale)
     new_height = int(image.size[1] * scale)
@@ -125,7 +125,7 @@ def scale_image(image, augmentations_type):
     return centered
 
 def add_noise(image, augmentations_type):
-    """Добавление шума."""
+    """Добавление шума"""
     array = np.array(image)
     noise = np.random.randint(-noise_intensity, noise_intensity, array.shape, dtype="int16")
     array = np.clip(array + noise, 0, 255).astype("uint8")
@@ -133,13 +133,13 @@ def add_noise(image, augmentations_type):
     return Image.fromarray(array)
 
 def blur_image(image, augmentations_type):
-    """Размытие изображения с случайным радиусом."""
+    """Размытие изображения с случайным радиусом"""
     radius = random.uniform(0, blur_radius)
     augmentations_type.append("blur")
     return image.filter(ImageFilter.GaussianBlur(radius=radius))
 
 def change_perspective(image, augmentations_type):
-    """Изменение перспективы."""
+    """Изменение перспективы"""
     coeffs = [1, random.uniform(*perspective_range) / 100, 0,
               random.uniform(*perspective_range) / 100, 1, 0, 0, 0]
     augmentations_type.append("perspective")
@@ -147,7 +147,7 @@ def change_perspective(image, augmentations_type):
 
 def generate_variations(image, num_variations, output_path_base):
     for i in range(num_variations):
-        augmentations_type = []  # Очищаем список перед каждой аугментацией
+        augmentations_type = []  # Список аугментаций каждого изображения
 
         # Случайно выбираем тип аугментации
         if random.random() < light_augmentation_probability:
